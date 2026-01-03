@@ -1,6 +1,6 @@
 namespace Catalog.Products.Models;
 
-public class Product : Entity<Guid>
+public class Product : Aggregate<Guid>
 {
     public string Name { get; private set; } = null!;
     public List<string> Category { get; private set; } = [];
@@ -22,6 +22,8 @@ public class Product : Entity<Guid>
             Price = price
         };
         
+        product.AddDomainEvent(new ProductCreatedEvent(product));
+        
         return product;
     }
 
@@ -35,7 +37,11 @@ public class Product : Entity<Guid>
         Description = description;
         ImageFile = imageFile;
         Price = price;
-        
-        // TODO : if price has change, rais ProductPriceChanged domain event
+
+        if (Price != price)
+        {
+            Price = price;
+            AddDomainEvent(new ProductPriceChangedEvent(this));
+        }
     }
 }
