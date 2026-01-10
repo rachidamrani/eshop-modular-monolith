@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Data;
 
 namespace Catalog;
 
@@ -16,14 +17,7 @@ public static class CatalogModule
 
     public static IApplicationBuilder UseCatalogModule(this IApplicationBuilder app)
     {
-        InitializeDataBaseAsync(app).GetAwaiter().GetResult();
+        app.UseMigration<CatalogDbContext>();
         return app;
-    }
-
-    private static async Task InitializeDataBaseAsync(IApplicationBuilder app)
-    {
-        using var scope = app.ApplicationServices.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
-        await context.Database.MigrateAsync();
     }
 }
